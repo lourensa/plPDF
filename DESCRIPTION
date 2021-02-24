@@ -1,0 +1,17 @@
+Package: plPDF
+Title: Processing of Random Variables which are Described by Piecewise Linear Probability Density Functions 
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Aris",
+           family = "Lourens",
+           role = c("aut", "cre"),
+           email = "lourensa@kpnmail.nl",
+           comment = c(ORCID = "0000-0002-1835-1947"))
+Description: This package makes calculations with random variables, defined by piecewise linear 
+probabilitye density functions (PL-PDFs), feasible.
+This includes the creation of PL-PDFs, arthmetic binary operations (+-\times /), and elementary functions like \code{log()} and \code{exp()}. The PL-PDF objects are implemented as an S3 object class (plpdf), and methods for generic functions are supplied. Herewith, the dispatch mechanism of R is available, which makes the use of the functionality very intuitive.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
