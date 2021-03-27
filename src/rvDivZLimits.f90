@@ -1,4 +1,23 @@
 
+!    plPDF is a library to perform calcualtions with piecewise linear random variables.
+!
+!    Copyright (C) 2016, 2021  Aris Lourens
+!
+!    This file is part of plPDF.
+!
+!    plPDF is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    (at your option) any later version.
+!
+!    plPDF is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 ! routines to get the Z-limits in case of division: Z = X / Y
 ! If the variable Y contains 0 in its domain and the probability
 ! density is not equal 0 in the neighbourhood then the limits of Z are

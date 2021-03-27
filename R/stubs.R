@@ -1,4 +1,24 @@
 
+#    plPDF is a library to perform calcualtions with piecewise linear random variables.
+#
+#    Copyright (C) 2016, 2021  Aris Lourens
+#
+#    This file is part of plPDF.
+#
+#    plPDF is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    plPDF is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 # define stub routines for Fortran source
 # =======================================
 
@@ -55,7 +75,32 @@ plpdfSum2 <- function(x,y,nbin=NA) {
    # perform     : z = x + y
    # return value: z
 
-   z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2")
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (lx & ly) {
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2")
+   } else {
+      if (lx) {
+         z = x
+         if (is.numeric(y)) {
+            z$x = z$x + y
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else if (is.numeric(x)) {
+         if (ly) {
+            z = y
+            z$x = z$x + x
+         } else if (is.numeric(y)) {
+            z = x + y  # should not occur
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else {
+         stop("Wrong type of argument x")
+      }
+      z = as.plpdf(z)
+   }
 
    # return
    return(z)
@@ -69,7 +114,32 @@ plpdfSum2R <- function(x,y,nclass=NA) {
    # perform     : z = x + y
    # return value: z
 
-   z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2r")
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (lx & ly) {
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2r")
+   } else {
+      if (lx) {
+         z = x
+         if (is.numeric(y)) {
+            z$x = z$x + y
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else if (is.numeric(x)) {
+         if (ly) {
+            z = y
+            z$x = z$x + x
+         } else if (is.numeric(y)) {
+            z = x + y  # should not occur
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else {
+         stop("Wrong type of argument x")
+      }
+      z = as.plpdf(z)
+   }
 
    # return
    return(z)
@@ -84,7 +154,32 @@ plpdfSub2 <- function(x,y,nbin=NA) {
    # perform     : z = x - y
    # return value: z
 
-   z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsub2")
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (lx & ly) {
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsub2")
+   } else {
+      if (lx) {
+         z = x
+         if (is.numeric(y)) {
+            z$x = z$x - y
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else if (is.numeric(x)) {
+         if (ly) {
+            z = plpdfMul2(y,-1.)
+            z$x = z$x + x
+         } else if (is.numeric(y)) {
+            z = x - y  # should not occur
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else {
+         stop("Wrong type of argument x")
+      }
+      z = as.plpdf(z)
+   }
 
    # return
    return(z)
@@ -115,7 +210,48 @@ plpdfMul2 <- function(x,y,nbin=NA) {
    # perform     : z = x * y
    # return value: z
 
-   z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2")
+   locRev <- function(v) {
+      # reverse order of arrays
+      v   = unclass(v)
+      attr(v,"exitcode") = NULL
+      v$x = rev(v$x)
+      v$y = rev(v$y)
+      if ("Y" %in% names(v)) {
+         v$Y = 1-rev(v$Y)
+      }
+      return(v)
+   }
+
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (lx & ly) {
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2")
+   } else {
+      if (lx) {
+         z = x
+         if (is.numeric(y)) {
+            if (y < 0) {z=locRev(z)}
+            z$x = z$x * y
+            z$y = z$y / abs(y)
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else if (is.numeric(x)) {
+         if (ly) {
+            z = y
+            if (x < 0) {z=locRev(z)}
+            z$x = z$x * x
+            z$y = z$y / abs(x)
+         } else if (is.numeric(y)) {
+            z = x / y
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else {
+         stop("Wrong type of argument x")
+      }
+      z = as.plpdf(z)
+   }
 
    # return
    return(z)
@@ -129,7 +265,48 @@ plpdfMul2R <- function(x,y,nbin=NA) {
    # perform     : z = x * y
    # return value: z
 
-   z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2r")
+   locRev <- function(v) {
+      # reverse order of arrays
+      v   = unclass(v)
+      attr(v,"exitcode") = NULL
+      v$x = rev(v$x)
+      v$y = rev(v$y)
+      if ("Y" %in% names(v)) {
+         v$Y = 1-rev(v$Y)
+      }
+      return(v)
+   }
+
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (lx & ly) {
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2r")
+   } else {
+      if (lx) {
+         z = x
+         if (is.numeric(y)) {
+            if (y < 0) {z=locRev(z)}
+            z$x = z$x * y
+            z$y = z$y / abs(y)
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else if (is.numeric(x)) {
+         if (ly) {
+            z = y
+            if (x < 0) {z=locRev(z)}
+            z$x = z$x * x
+            z$y = z$y / abs(x)
+         } else if (is.numeric(y)) {
+            z = x / y
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else {
+         stop("Wrong type of argument x")
+      }
+      z = as.plpdf(z)
+   }
 
    # return
    return(z)
@@ -144,7 +321,43 @@ plpdfDiv2 <- function(x,y,nbin=NA) {
    # perform     : z = x / y
    # return value: z
 
-   z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopdiv2")
+   locRev <- function(v) {
+      # reverse order of arrays
+      v   = unclass(v)
+      attr(v,"exitcode") = NULL
+      v$x = rev(v$x)
+      v$y = rev(v$y)
+      if ("Y" %in% names(v)) {
+         v$Y = 1-rev(v$Y)
+      }
+      return(v)
+   }
+
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (lx & ly) {
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopdiv2")
+   } else {
+      if (lx) {
+         if (is.numeric(y)) {
+            z = plpdfMul2(x,1/y,nbin)
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else if (is.numeric(x)) {
+         if (ly) {
+            z = plpdfFunInv2(y,nbin=nbin)
+            z = plpdfMul2(x,z,nbin)
+         } else if (is.numeric(y)) {
+            z = x / y
+         } else {
+            stop("Wrong type of argument y")
+         }
+      } else {
+         stop("Wrong type of argument x")
+      }
+      z = as.plpdf(z)
+   }
 
    # return
    return(z)

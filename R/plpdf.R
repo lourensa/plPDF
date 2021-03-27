@@ -1,4 +1,33 @@
 
+#    plPDF is a library to perform calcualtions with piecewise linear random variables.
+#
+#    Copyright (C) 2016, 2021  Aris Lourens
+#
+#    This file is part of plPDF.
+#
+#    plPDF is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    plPDF is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#' plPDF: A package for computations with piecewise linear PDFs
+#'
+#'
+#' @docType package
+#' @name plPDF
+#' @useDynLib plPDF
+NULL
+#> NULL
+
 # basic functions for class plpdf
 
 #' Check or object can be a PL-PDF
@@ -98,6 +127,10 @@ is.plpdf <- function(obj) {
    # test
    if ("plpdf" %in% class(obj)) {
       out = TRUE
+   } else if (is.null(obj)) {
+      out = FALSE
+   } else if (! is.list(obj)) {
+      out = FALSE
    } else {
       # check content of obj
       out = plpdfCheck(obj)
@@ -108,3 +141,35 @@ is.plpdf <- function(obj) {
 }
 
 
+#' Determine Number of bins
+#'
+#' Determine Number of bins based on number of bins of PDFs
+#' @param  nbin   if nbin has a finite value, this value is returned. If not finte then the returnded value is based on the given PDFs and a default number of bins.
+#' @param  pdf1   if object is of class plpdf then its number of bins is used in the evaluation (optional)
+#' @param  pdf2   as \code{pdf1}
+#' @param  pdf3   as \code{pdf1}
+plpdfNbin <- function(nbin,pdf1=NULL,pdf2=NULL,pdf3=NULL) {
+
+   # init
+   nbindef = 51   # default number of bins
+
+   # check or nbin is defined
+   if (is.finite(nbin)) {
+      if (nbin > 0) {
+         # to be sure it is an integer value
+         nbin = as.integer(ceiling(nbin))
+         # return
+         return(nbin)
+      }
+   }
+
+   # determine nbin
+   n = 0
+   for (p in list(pdf1,pdf2,pdf3)) {
+      if (is.plpdf(p)) {n = max(n,length(p$x)-1)}
+   }
+   nbin = as.integer(ceiling((n+nbindef)/2))
+
+   # return
+   return(nbin)
+}
