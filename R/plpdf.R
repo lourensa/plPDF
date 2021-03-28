@@ -25,6 +25,10 @@
 #' @docType package
 #' @name plPDF
 #' @useDynLib plPDF
+#' @examples
+#' U=plUnif(1,5)
+#' N=plNorm(2,1)
+#' plot(U/N)
 NULL
 #> NULL
 
