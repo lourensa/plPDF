@@ -28,7 +28,7 @@
 #' @examples
 #' U=plUnif(1,5)
 #' N=plNorm(2,1)
-#' plot(U/N)
+#' plot(U*N)
 NULL
 #> NULL
 

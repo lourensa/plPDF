@@ -32,7 +32,7 @@ plpdfFunMath2 <- function(x,nbin,routine) {
    xval = as.double(x$x)
    xden = as.double(x$y)
    nx   = as.integer(length(xval))
-   nz   = nbin + 1L
+   nz   = as.integer(nbin + 1L)
 
    # arguments: xval,xden,nx,zval,zden,zcum,nz,exitcode
    out <- .Fortran(routine,PACKAGE="plPDF",
