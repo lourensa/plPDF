@@ -85,7 +85,8 @@ plTrap <- function(x=c(0,1,2)) {
 plNorm <- function(mean=0,sd=1) {
 
    # init
-   n = 51   # number of discretization points
+   nbin   = plpdfGetNbin(default=50)
+   n      = nbin + 1   # number of discretization points
    nsigma = 5
 
    # create distribution

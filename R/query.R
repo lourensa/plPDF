@@ -19,25 +19,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#' Query functions for plpdf's
+#' Query functions for PL-PDF's
 #'
 #' These functions provide information about the plpdf distribution. \code{dplpdf} gives the density, \code{pplpdf} gives the distribution function, \code{qplpdf} gives the quantile function and \code{rplpdf} generates random deviates.
+#' @describeIn dplpdf
+#' Get the probability densities of a PDF given the values
 #' @param pdf   object of class \code{plpdf}
-#' @param x     vector of values.
+#' @param x     vector of values. Non-finite values are ignored.
 #' @export
 dplpdf <- function(x,pdf) {
 
-   out = plpdfFunValDen(pdf,Y=p)
+   out = plpdfFunValDen(pdf,x=x)
 
    # return
    return(out$y)
 }
 
-#' Get probabilities given the quantiles
-#'
+# Get probabilities given the quantiles
+#
+# Get the probabilities of a PDF given the quantiles
+# @inheritParams dplpdf
+
+#' @describeIn dplpdf
 #' Get the probabilities of a PDF given the quantiles
-#' @param q     vector of quantiles.
-#' @inheritParams dplpdf
+#' @param q     vector of quantiles. Non-finite values are ignored.
 #' @export
 pplpdf <- function(q,pdf) {
 
@@ -47,11 +52,13 @@ pplpdf <- function(q,pdf) {
    return(out$Y)
 }
 
-#' Get values at cumulative probabilities 
-#' 
+# Get values at cumulative probabilities 
+# 
+# @inheritParams dplpdf
+
+#' @describeIn dplpdf
 #' Get values at cumulative probability values
-#' @param p     vector of probabilities.
-#' @inheritParams dplpdf
+#' @param p     vector of probabilities. Non-finite values are ignored.
 #' @export
 qplpdf <- function(p,pdf) {
 
@@ -62,11 +69,13 @@ qplpdf <- function(p,pdf) {
    return(out$x)
 }
 
-#' Draw a number of values from a PDF
-#'
+# Draw a number of values from a PDF
+#
+# @inheritParams dplpdf
+
+#' @describeIn dplpdf
 #' Draw a number of values from a PDF
 #' @param n     number of observations. If length(n) > 1, the length is taken to be the number required.
-#' @inheritParams dplpdf
 #' @export
 rplpdf <- function(n,pdf) {
    # init

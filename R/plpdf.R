@@ -83,7 +83,7 @@ plpdfCheck <- function(obj) {
 #' @param  obj   list; object to be converted into a \code{plpdf}. The list must contain at least the data \code{(x,y)}.
 #' @param  normalize  logical; normalize the function so it integrates to 1.
 #' @details A piecewise pinear PDF (\code{plpdf}) consists of at least an \code{x} and \code{y} array. Here \code{x} is the value and \code{y} is the probability density. In addition, the array \code{Y} can be defined. This array contains the cumulative probability.
-#' @seealso \code{link{is.plpdf}}
+#' @seealso \code{\link{is.plpdf}}
 #' @author Aris Lourens
 #' @export
 as.plpdf <- function(obj,normalize=TRUE) {
@@ -121,7 +121,7 @@ as.plpdf <- function(obj,normalize=TRUE) {
 #' Test object being of class plpdf. 
 #' @param  obj   to be tested object
 #' @author Aris Lourens
-#' @seealso \code{link{as.plpdf}}
+#' @seealso \code{\link{as.plpdf}}
 #' @export
 is.plpdf <- function(obj) {
 
@@ -152,12 +152,13 @@ is.plpdf <- function(obj) {
 #' @param  pdf1   if object is of class plpdf then its number of bins is used in the evaluation (optional)
 #' @param  pdf2   as \code{pdf1}
 #' @param  pdf3   as \code{pdf1}
-plpdfNbin <- function(nbin,pdf1=NULL,pdf2=NULL,pdf3=NULL) {
+plpdfNbin <- function(nbin=NA,pdf1=NULL,pdf2=NULL,pdf3=NULL) {
 
    # init
-   nbindef = 51   # default number of bins
+   nbindef = plpdfGetNbin()   # default number of bins
 
    # check or nbin is defined
+   if (is.null(nbin)){nbin = NA}
    if (is.finite(nbin)) {
       if (nbin > 0) {
          # to be sure it is an integer value

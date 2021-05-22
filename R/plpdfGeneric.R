@@ -41,15 +41,11 @@ is.na.plpdf <- function(pdf) {
 Ops.plpdf <- function(pdf1,pdf2) {
 
    # init
-   nbindef = 51
 
    # calc
    if (.Generic %in% c("+","-","*","/")) {
-      # calculate number of bins
-      nbin = 0
-      if (is.plpdf(pdf1)) {nbin = max(nbin,length(pdf1$x))}
-      if (is.plpdf(pdf2)) {nbin = max(nbin,length(pdf2$x))}
-      nbin = ceiling((nbin+nbindef)/2)
+      # determine number of bins
+      nbin = plpdfNbin(nbin=NA,pdf1,pdf2)
       #
       if     (.Generic == "+") {ret = plpdfSum2(pdf1,pdf2,nbin=nbin)}
       else if(.Generic == "-") {ret = plpdfSub2(pdf1,pdf2,nbin=nbin)}
@@ -92,7 +88,8 @@ plot.plpdf <- function(pdf,xlab="Value",ylab="Probability density",add=FALSE,typ
 
 #' Math method for PL-PDF objects
 #'
-#' Math method for PL-PDF objects
+#' Math method for PL-PDF objects.
+#' The implemented generic functions are \code{log}, \code{exp}, \code{sqrt}, \code{sq}.
 #' @export
 Math.plpdf <- function(pdf,...) {
 
