@@ -43,7 +43,7 @@ Ops.plpdf <- function(pdf1,pdf2) {
    # init
 
    # calc
-   if (.Generic %in% c("+","-","*","/")) {
+   if (.Generic %in% c("+","-","*","/","^")) {
       # determine number of bins
       nbin = plpdfNbin(nbin=NA,pdf1,pdf2)
       #
@@ -51,6 +51,7 @@ Ops.plpdf <- function(pdf1,pdf2) {
       else if(.Generic == "-") {ret = plpdfSub2(pdf1,pdf2,nbin=nbin)}
       else if(.Generic == "*") {ret = plpdfMul2(pdf1,pdf2,nbin=nbin)}
       else if(.Generic == "/") {ret = plpdfDiv2(pdf1,pdf2,nbin=nbin)}
+      else if(.Generic == "^") {ret = plpdfPow2(pdf1,pdf2,nbin=nbin)}
 #   } else if (.Generic %in% c("==","!=","<","<=",">=",">")) {
    } else {
       stop("Binary operation ",.Generic," not implemented")

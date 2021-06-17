@@ -42,11 +42,12 @@ plpdfBop2 <- function(x,y,nbin=NA,routine) {
    # aray lengths
    nx   = length(x$x)
    ny   = length(y$x)
-   if(is.na(nbin)) {
-      nz = max(nx,ny)
-   } else {
+   nbin = plpdfNbin(nbin=nbin,x,y)   
+#   if(is.na(nbin)) {
+#      nz = max(nx,ny)
+#   } else {
       nz = nbin+1
-   }
+#   }
 
    # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
    out <- .Fortran(routine,PACKAGE="plPDF",
@@ -358,6 +359,45 @@ plpdfDiv2 <- function(x,y,nbin=NA) {
       }
       z = as.plpdf(z)
    }
+
+   # return
+   return(z)
+}
+
+#' Calucalate the power of a PDF
+#'
+#' Interim function for calculation of the power of a PL-PDF, \code{x^y}. Fortran implementation coming later.
+#' The function is currently implemented as: z=exp(y*log(x))
+plpdfPow2 <- function(x,y,nbin=NA) {
+
+   # nbin
+   nbin = plpdfNbin(nbin=nbin,x,y)   
+   
+   # check type of arguments
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (! lx) {if (! is.numeric(x)) {stop("Argument x should be a PL-PDF or numeric")}}
+   if (! ly) {if (! is.numeric(y)) {stop("Argument y should be a PL-PDF or numeric")}}
+
+   # check lx value
+   if (lx) {
+      if (any(x$x < 0)) {
+         stop("Power function not valid for x-values less than 0")
+      } else if (is.numeric(x)) {
+         if (x < 0) {
+            stop("Power function not valid for x less than 0")
+         }
+      }
+   }
+
+   # calc
+   if (lx) {
+      lnx  = plpdfFunLn2(x,nbin=nbin)
+   } else {
+      x = log(x)
+   }
+   ylnx = plpdfMul2(y,lnx,nbin=nbin)
+   z    = plpdfFunExp2(ylnx,nbin=nbin)
 
    # return
    return(z)
