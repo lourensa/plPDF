@@ -394,7 +394,7 @@ plpdfPow2 <- function(x,y,nbin=NA) {
    if (lx) {
       lnx  = plpdfFunLn2(x,nbin=nbin)
    } else {
-      x = log(x)
+      lnx = log(x)
    }
    ylnx = plpdfMul2(y,lnx,nbin=nbin)
    z    = plpdfFunExp2(ylnx,nbin=nbin)
