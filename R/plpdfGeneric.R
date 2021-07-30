@@ -68,19 +68,38 @@ Ops.plpdf <- function(pdf1,pdf2) {
 #' @param xlab   a title for the x axis. See \code{plot}
 #' @param ylab   a title for the y axis. See \code{plot}
 #' @param type   what type of plot should be drawn, See \code{plot}.
+#' @param derivative integer; the order derivative which should be plotted. Implemented: 0=PDF (default), -1=CDF.
 #' @param ...    arguments to be passed to graphical functions
 #' @export
-plot.plpdf <- function(pdf,xlab="Value",ylab="Probability density",add=FALSE,type="l",...) {
+plot.plpdf <- function(pdf,xlab="Value",ylab=NA,add=FALSE,type="l",derivative=0,...) {
 
    # init
+   ylab_pdf = "Probability density"
+   ylab_cdf = "Cumulative probability"
+
+   # derivative
+   if (derivative == -1) {
+      # CDF
+      # add Y to pdf
+      y = pplpdf(pdf$x,pdf)
+      if(is.na(ylab)) {ylab=ylab_cdf}
+      yrange = range(y)
+   } else if (derivative == 0) {
+      # PDF
+      y = pdf$y
+      if(is.na(ylab)) {ylab=ylab_pdf}
+      yrange = range(c(0,y))
+   } else {
+      stop("Unknown derivative value ",derivative)
+   }
 
    if (! add) {
       # initialize graph
-      plot(x=range(pdf$x),y=range(c(0,pdf$y)),xlab=xlab,ylab=ylab,type="n",...)
+      plot(x=range(pdf$x),y=yrange,xlab=xlab,ylab=ylab,type="n",...)
    }
 
    # draw line
-   lines(x=pdf$x,y=pdf$y,type=type,...)
+   lines(x=pdf$x,y=y,type=type,...)
 
    # return
    return(invisible())
@@ -91,6 +110,7 @@ plot.plpdf <- function(pdf,xlab="Value",ylab="Probability density",add=FALSE,typ
 #'
 #' Math method for PL-PDF objects.
 #' The implemented generic functions are \code{log}, \code{exp}, \code{sqrt}, \code{sq}.
+#' @param pdf    object of class \code{plpdf}
 #' @export
 Math.plpdf <- function(pdf,...) {
 
@@ -108,4 +128,29 @@ Math.plpdf <- function(pdf,...) {
    # return
    return(out)
 }
+
+#' Calculate the mean value of a PL-PDF
+#'
+#' Calculate the mean value of a PL-PDF
+#' @param pdf    object of class \code{plpdf}
+#' @export
+mean.plpdf <- function(pdf) {
+
+   # init
+   n   = length(pdf$x)
+   ii  = 1:(n-1)
+
+   # calc mean
+   out = sum(diff(pdf$x)*((pdf$y[ii]  *(   pdf$x[ii+1]+  2.*pdf$x[ii] ))   
+                         +(pdf$y[ii+1]*(2.*pdf$x[ii+1]+     pdf$x[ii] )) ) )
+   out = out/6.
+
+   # devide by total probability, to be sure (should be 1)
+   prb = 0.5*sum((pdf$y[ii]+pdf$y[ii+1])*diff(pdf$x))
+   out = out/prb
+
+   # return
+   return(out)
+}
+
 

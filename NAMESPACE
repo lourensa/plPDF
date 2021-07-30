@@ -3,6 +3,7 @@
 S3method(Math,plpdf)
 S3method(Ops,plpdf)
 S3method(is.na,plpdf)
+S3method(mean,plpdf)
 S3method(plot,plpdf)
 export(as.plpdf)
 export(dplpdf)
