@@ -68,7 +68,7 @@ plpdfCheck <- function(obj) {
    }
    if (any(obj$y < 0)) {
       # y values must be >= 0
-      warning("Values of x not increasing")
+      warning("y contains negative values")
       return(FALSE)
    }
 
