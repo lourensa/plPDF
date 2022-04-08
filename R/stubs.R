@@ -29,7 +29,7 @@
 # Stub functions
 # ..............
 
-plpdfBop2 <- function(x,y,nbin=NA,routine) {
+plpdfBop2 <- function(x,y,nbin=NA,routine,normalize=TRUE) {
    # general function for binary operations
    #    all binary operations have the same function format, the only
    #    difference is the to be called Fortran routine
@@ -61,7 +61,7 @@ plpdfBop2 <- function(x,y,nbin=NA,routine) {
 
    # output
    z = list(x=out$zval,y=out$zden,Y=out$zcum)
-   z = as.plpdf(z)
+   z = as.plpdf(z,normalize=normalize)
    attr(z,"exitcode") = out$exitcode
 
    # return
@@ -69,8 +69,55 @@ plpdfBop2 <- function(x,y,nbin=NA,routine) {
 
 }
 
-plpdfSum  <- function(x,y,nbin=NA){return(plpdfSum2(x,y,nbin))}  # alias for plpdfSum2()
-plpdfSum2 <- function(x,y,nbin=NA) {
+#' Binary operations of PL-PDF objects
+#' 
+#' Perform binary operations on two PL-PDF's. Especially useful when the default values of \code{nbin} and \code{normalize} are not suitable. Otherwise the generic binary operation (+,-,*,/,^) can be used.
+#' @describeIn plpdfSum
+#' Calculate the sum of two PL-PDF's.
+#' @param x     object of class \code{plpdf}
+#' @param y     object of class \code{plpdf}
+#' @param nbin  integer; number of bins in output object. If \code{NA} this number is automatically defined.
+#' @param normalize logical; If \code{TRUE} (default) the resulting PDF is normalized. See \code{\link{as.plpdf}}.
+#' @export
+plpdfSum  <- function(x,y,nbin=NA,normalize=TRUE){
+   # alias for plpdfSum2()
+   return(plpdfSum2(x,y,nbin,normalize=normalize))
+}
+
+#' @describeIn plpdfSum
+#' Subtract two PL-PDF's.
+#' @export
+plpdfSub  <- function(x,y,nbin=NA,normalize=TRUE){
+   # alias for plpdfSub2()
+   return(plpdfSub2(x,y,nbin,normalize=normalize))
+}
+
+#' @describeIn plpdfSum
+#' Multiply two PL-PDF's.
+#' @export
+plpdfMul  <- function(x,y,nbin=NA,normalize=TRUE){
+   # alias for plpdfMul2()
+   return(plpdfMul2(x,y,nbin,normalize=normalize))
+}
+
+#' @describeIn plpdfSum
+#' Divide two PL-PDF's.
+#' @export
+plpdfDiv  <- function(x,y,nbin=NA,normalize=TRUE){
+   # alias for plpdfDiv2()
+   return(plpdfDiv2(x,y,nbin,normalize=normalize))
+}
+
+#' @describeIn plpdfSum
+#' Calculate the power of two PL-PDF's
+#' @export
+plpdfPow <- function(x,y,nbin=NA,normalize=TRUE) {
+   # alias for plpdfPow2()
+   return(plpdfDiv2(x,y,nbin,normalize=normalize))
+}
+
+
+plpdfSum2 <- function(x,y,nbin=NA,normalize=TRUE) {
    # summarize PL-PDFs of independent variables x and y
    # --------------------------------------------------
    # perform     : z = x + y
@@ -79,7 +126,7 @@ plpdfSum2 <- function(x,y,nbin=NA) {
    lx = is.plpdf(x)
    ly = is.plpdf(y)
    if (lx & ly) {
-      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2")
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2",normalize=normalize)
    } else {
       if (lx) {
          z = x
@@ -100,7 +147,7 @@ plpdfSum2 <- function(x,y,nbin=NA) {
       } else {
          stop("Wrong type of argument x")
       }
-      z = as.plpdf(z)
+      z = as.plpdf(z,normalize=normalize)
    }
 
    # return
@@ -109,7 +156,7 @@ plpdfSum2 <- function(x,y,nbin=NA) {
 
 # -------------------------------
 
-plpdfSum2R <- function(x,y,nclass=NA) {
+plpdfSum2R <- function(x,y,nclass=NA,normalize=TRUE) {
    # summarize PDFs of independent variables x and y
    # -----------------------------------------------
    # perform     : z = x + y
@@ -118,7 +165,7 @@ plpdfSum2R <- function(x,y,nclass=NA) {
    lx = is.plpdf(x)
    ly = is.plpdf(y)
    if (lx & ly) {
-      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2r")
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsum2r",normalize=normalize)
    } else {
       if (lx) {
          z = x
@@ -139,7 +186,7 @@ plpdfSum2R <- function(x,y,nclass=NA) {
       } else {
          stop("Wrong type of argument x")
       }
-      z = as.plpdf(z)
+      z = as.plpdf(z,normalize=normalize)
    }
 
    # return
@@ -148,8 +195,7 @@ plpdfSum2R <- function(x,y,nclass=NA) {
 
 # -------------------------------
 
-plpdfSub  <- function(x,y,nbin=NA){return(plpdfSub2(x,y,nbin))}  # alias for plpdfSub2()
-plpdfSub2 <- function(x,y,nbin=NA) {
+plpdfSub2 <- function(x,y,nbin=NA,normalize=TRUE) {
    # summarize PDFs of independent variables x and y
    # -----------------------------------------------
    # perform     : z = x - y
@@ -158,7 +204,7 @@ plpdfSub2 <- function(x,y,nbin=NA) {
    lx = is.plpdf(x)
    ly = is.plpdf(y)
    if (lx & ly) {
-      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsub2")
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopsub2",normalize=normalize)
    } else {
       if (lx) {
          z = x
@@ -179,7 +225,7 @@ plpdfSub2 <- function(x,y,nbin=NA) {
       } else {
          stop("Wrong type of argument x")
       }
-      z = as.plpdf(z)
+      z = as.plpdf(z,normalize=normalize)
    }
 
    # return
@@ -188,7 +234,7 @@ plpdfSub2 <- function(x,y,nbin=NA) {
 
 # -------------------------------
 
-plpdfSub2R <- function(x,y,nbin=NA) {
+plpdfSub2R <- function(x,y,nbin=NA,normalize=TRUE) {
    # Subtract PDFs of independent variables x and y, RAW version
    # TEMPORARY FUNCTION, TO BE REPLACED BY FORTRAN EQUIVALENCE
    # --------------------------------------------
@@ -196,7 +242,7 @@ plpdfSub2R <- function(x,y,nbin=NA) {
    # return value: z
 
    iy = list(x=rev(-y$x),y=rev(y$y))
-   z  = plpdfSum2R(x,iy,nbin)
+   z  = plpdfSum2R(x,iy,nbin,normalize=normalize)
 
    # return
    return(z)
@@ -204,8 +250,7 @@ plpdfSub2R <- function(x,y,nbin=NA) {
 
 # -------------------------------
 
-plpdfMul  <- function(x,y,nbin=NA){return(plpdfMul2(x,y,nbin))}  # alias for plpdfMul2()
-plpdfMul2 <- function(x,y,nbin=NA) {
+plpdfMul2 <- function(x,y,nbin=NA,normalize=TRUE) {
    # Multiply PDFs of independent variables x and y
    # ----------------------------------------------
    # perform     : z = x * y
@@ -226,7 +271,7 @@ plpdfMul2 <- function(x,y,nbin=NA) {
    lx = is.plpdf(x)
    ly = is.plpdf(y)
    if (lx & ly) {
-      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2")
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2",normalize=normalize)
    } else {
       if (lx) {
          z = x
@@ -251,7 +296,7 @@ plpdfMul2 <- function(x,y,nbin=NA) {
       } else {
          stop("Wrong type of argument x")
       }
-      z = as.plpdf(z)
+      z = as.plpdf(z,normalize=normalize)
    }
 
    # return
@@ -260,7 +305,7 @@ plpdfMul2 <- function(x,y,nbin=NA) {
 
 # -------------------------------
 
-plpdfMul2R <- function(x,y,nbin=NA) {
+plpdfMul2R <- function(x,y,nbin=NA,normalize=TRUE) {
    # Multiply PDFs of independent variables x and y
    # ----------------------------------------------
    # perform     : z = x * y
@@ -281,7 +326,7 @@ plpdfMul2R <- function(x,y,nbin=NA) {
    lx = is.plpdf(x)
    ly = is.plpdf(y)
    if (lx & ly) {
-      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2r")
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopmul2r",normalize=normalize)
    } else {
       if (lx) {
          z = x
@@ -306,7 +351,7 @@ plpdfMul2R <- function(x,y,nbin=NA) {
       } else {
          stop("Wrong type of argument x")
       }
-      z = as.plpdf(z)
+      z = as.plpdf(z,normalize=normalize)
    }
 
    # return
@@ -315,8 +360,7 @@ plpdfMul2R <- function(x,y,nbin=NA) {
 
 # -------------------------------
 
-plpdfDiv  <- function(x,y,nbin=NA){return(plpdfDiv2(x,y,nbin))}  # alias for plpdfDiv2()
-plpdfDiv2 <- function(x,y,nbin=NA) {
+plpdfDiv2 <- function(x,y,nbin=NA,normalize=TRUE) {
    # Divide PDFs of independent variables x and y
    # --------------------------------------------
    # perform     : z = x / y
@@ -337,7 +381,7 @@ plpdfDiv2 <- function(x,y,nbin=NA) {
    lx = is.plpdf(x)
    ly = is.plpdf(y)
    if (lx & ly) {
-      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopdiv2")
+      z = plpdfBop2(x=x,y=y,nbin=nbin,routine="rvbopdiv2",normalize=normalize)
    } else {
       if (lx) {
          if (is.numeric(y)) {
@@ -357,7 +401,7 @@ plpdfDiv2 <- function(x,y,nbin=NA) {
       } else {
          stop("Wrong type of argument x")
       }
-      z = as.plpdf(z)
+      z = as.plpdf(z,normalize=normalize)
    }
 
    # return
@@ -368,7 +412,7 @@ plpdfDiv2 <- function(x,y,nbin=NA) {
 #'
 #' Interim function for calculation of the power of a PL-PDF, \code{x^y}. Fortran implementation coming later.
 #' The function is currently implemented as: z=exp(y*log(x))
-plpdfPow2 <- function(x,y,nbin=NA) {
+plpdfPow2 <- function(x,y,nbin=NA,normalize=TRUE) {
 
    # nbin
    nbin = plpdfNbin(nbin=nbin,x,y)   
@@ -1165,7 +1209,7 @@ plpdfClean <- function(pdf1,nsigma=6,minprob=0.999,nscale=1,switch=0) {
 
 # -------------------------------
 
-plpdfMix2 <- function(x,y,fx=1,fy=1,nbin=NA) {
+plpdfMix2 <- function(x,y,fx=1,fy=1,nbin=NA,normalize=TRUE) {
    # Mix two variables x and y, using weights fx and fy
    # --------------------------------------------------
    # THIS FUNCTION IS TEMPORARILY NOT CODED IN FORTRAN, TO BE DONE
@@ -1216,6 +1260,7 @@ plpdfMix2 <- function(x,y,fx=1,fy=1,nbin=NA) {
    }
 
    pdfz = list(x=z$val,y=z$den,Y=z$cum)
+   pdfz = as.plpdf(pdfz,normalize=normalize)
 
    # return
    return(pdfz)

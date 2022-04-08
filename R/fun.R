@@ -27,6 +27,7 @@
 #' Get values at cumulative probability values.
 #' @param pdf    object of type \code{plpdf}.
 #' @param Y      cumulative probability values to find an ordinate value for. Non-finite values are ignored.
+#' @keywords internal
 plpdfFunCumVal <- function(pdf,Y=NA) {
 
    # get length of arrays
@@ -66,6 +67,7 @@ plpdfFunCumVal <- function(pdf,Y=NA) {
 #' Get densities at values of PL-PDF.
 #' @param pdf    object of type \code{plpdf}.
 #' @param x      ordinate values to find density values for. Non-finite values are ignored.
+#' @keywords internal
 plpdfFunValDen <- function(pdf,x=NA) {
    # get probability density of pdf at x
    # -----------------------------------
@@ -108,6 +110,7 @@ plpdfFunValDen <- function(pdf,x=NA) {
 #' Get cumulative probabilities at values of PL-PDF.
 #' @param pdf    object of type \code{plpdf}.
 #' @param x      ordinate values to find density values for. Non-finite values are ignored.
+#' @keywords internal
 plpdfFunValCum <- function(pdf,x=NA) {
    # get cumulative probability of x at val
    # --------------------------------------------------------------
@@ -149,6 +152,7 @@ plpdfFunValCum <- function(pdf,x=NA) {
 #' Get cumulative probabilities and densities at values of PL-PDF.
 #' @param pdf    object of type \code{plpdf}.
 #' @param x      ordinate values to find density values for. Non-finite values are ignored.
+#' @keywords internal
 plpdfFunValDenCum <- function(pdf,x=NA) {
    # get cumulative probability and densities of x at val
    # --------------------------------------------------------------

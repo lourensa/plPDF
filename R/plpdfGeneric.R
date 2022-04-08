@@ -34,7 +34,7 @@ is.na.plpdf <- function(pdf) {
 
 #' Method for binary operations on PL-PDFs
 #'
-#' Method for binary operations on PL-PDFs. Implemented operations are \code{+,-,*,/}.
+#' Method for binary operations on PL-PDFs. Implemented operations are \code{+,-,*,/,^}.
 #' @param pdf1  object of class \code{plpdf} or scalar variable
 #' @param pdf2  object of class \code{plpdf} or scalar variable
 #' @export
@@ -129,6 +129,45 @@ Math.plpdf <- function(pdf,...) {
    return(out)
 }
 
+#' Summary method for PL-PDF objects
+#'
+#' Summary method for PL-PDF objects.
+#' @param pdf    object of class \code{plpdf}
+#' @details The implemented generic functions are \code{sum}, \code{min}, \code{max}, \code{range}.\cr
+#' \code{sum} returns the integral of the PL-PDF function. If multiple pdf's are given then the total sum is returned.\cr
+#' \code{min}, \code{max} and \code{range} return the respective values of the domain (\code{x}-value) of the pdf's.
+#' @export
+Summary.plpdf <- function(...,na.rm=FALSE) {
+
+   if (.Generic %in% c("sum")) {
+      out = 0
+      for (pdf in list(...)) {
+         s   = sum(diff(pdf$x)*(head(pdf$y,-1)+tail(pdf$y,-1)))/2.
+         out = out + s
+      }
+   } else if (.Generic %in% c("min")) {
+      out = NULL
+      for (pdf in list(...)) {
+         out = min(out,pdf$x,na.rm=na.rm)
+      }
+   } else if (.Generic %in% c("max")) {
+      out = NULL
+      for (pdf in list(...)) {
+         out = max(out,pdf$x,na.rm=na.rm)
+      }
+   } else if (.Generic %in% c("range")) {
+      out = NULL
+      for (pdf in list(...)) {
+         out = range(out,pdf$x,na.rm=na.rm)
+      }
+   } else {
+      stop("Funtion ", .Generic, " not implemented")
+   }
+   # return
+   return(out)
+}
+
+
 #' Calculate the mean value of a PL-PDF
 #'
 #' Calculate the mean value of a PL-PDF
@@ -148,6 +187,28 @@ mean.plpdf <- function(pdf) {
    # devide by total probability, to be sure (should be 1)
    prb = 0.5*sum((pdf$y[ii]+pdf$y[ii+1])*diff(pdf$x))
    out = out/prb
+
+   # return
+   return(out)
+}
+
+
+#' Get the length of a PL-PDF
+#'
+#' Get the length of the arrays in a PL-PDF. 
+#' @param pdf    object of class \code{plpdf}
+#' @return The number of discretization points of the PL-PDF, which is equal to \code{nbin}+1. 
+#'         If the object \code{pdf} is not of class \code{plpdf} then \code{NULL} is returned.
+#' @export
+length.plpdf <- function(pdf) {
+
+   # init
+   out = NULL
+
+   # get length
+   if (is.plpdf(pdf)) {
+      out = length(pdf$x)
+   }
 
    # return
    return(out)

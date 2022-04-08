@@ -1,6 +1,6 @@
 Package: plPDF
 Title: Processing of Random Variables which are Described by Piecewise Linear Probability Density Functions 
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person(given = "Aris",
            family = "Lourens",
@@ -15,4 +15,4 @@ Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
