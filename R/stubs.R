@@ -30,7 +30,7 @@
 # ..............
 
 plpdfBop2 <- function(x,y,nbin=NA,routine,normalize=TRUE) {
-   # general function for binary operations
+   # general function for binary operations level 2
    #    all binary operations have the same function format, the only
    #    difference is the to be called Fortran routine
 
@@ -43,11 +43,7 @@ plpdfBop2 <- function(x,y,nbin=NA,routine,normalize=TRUE) {
    nx   = length(x$x)
    ny   = length(y$x)
    nbin = plpdfNbin(nbin=nbin,x,y)   
-#   if(is.na(nbin)) {
-#      nz = max(nx,ny)
-#   } else {
-      nz = nbin+1
-#   }
+   nz = nbin+1
 
    # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
    out <- .Fortran(routine,PACKAGE="plPDF",
@@ -56,7 +52,7 @@ plpdfBop2 <- function(x,y,nbin=NA,routine,normalize=TRUE) {
               zval=as.double(rep(0.,nz)),
               zden=as.double(rep(0.,nz)),
               zcum=as.double(rep(0.,nz)),
-              as.integer(nz),
+              nz  =as.integer(nz),
               exitcode=as.integer(0))
 
    # output
@@ -511,45 +507,148 @@ plpdfPow2 <- function(x,y,nbin=NA,normalize=TRUE) {
 ###xxx###
 ###xxx#### -------------------------------
 ###xxx###
-###xxx###rvBopSum3 <- function(x,y,nclass=NA,z=NA,mxden=FALSE)
-###xxx###  {# summarize PDFs of independent variables x and y
-###xxx###   # -----------------------------------------------
-###xxx###   # perform     : z = x + y
-###xxx###   # return value: z
-###xxx###
-###xxx###   # create Z values
-###xxx###   if (any(is.na(z))){z = spdfLinZ(x,y,type="sum",nclass=nclass,mxden=mxden)}
-###xxx###
-###xxx###   # copy data
-###xxx###   xval = as.double(x$d.val)
-###xxx###   xden = as.double(x$d.prob)
-###xxx###   nx   = as.integer(length(xval))
-###xxx###   yval = as.double(y$d.val)
-###xxx###   yden = as.double(y$d.prob)
-###xxx###   ny   = as.integer(length(yval))
-###xxx###   zval = as.double(z)
-###xxx###   nz   = as.integer(length(zval))
-###xxx###
-###xxx###   # create data memory for output variables
-###xxx###   zden     = as.double(rep(0,nz))
-###xxx###   zcum     = zden
-###xxx###   exitcode = as.integer(9999)
-###xxx###
-###xxx###   # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
-###xxx###   out <- .Fortran("rvbopsum3",xval,xden,nx,
-###xxx###                               yval,yden,ny,
-###xxx###                               zval,zden=zden,zcum=zcum,nz,exitcode=exitcode,PACKAGE="plPDF")
-###xxx###
-###xxx###   # copy returned values
-###xxx###   pdfz        = list()
-###xxx###   pdfz$d.val  = zval
-###xxx###   pdfz$d.prob = out$zden
-###xxx###   pdfz$c.prob = out$zcum
-###xxx###   exitcode    = out$exitcode
-###xxx###
-###xxx###   # return
-###xxx###   return(pdfz)
-###xxx###  }
+
+plpdfBop3 <- function(x,y,zx,routine,normalize=TRUE) {
+   # general function for binary operations level 3
+   #    all binary operations have the same function format, the only
+   #    difference is the to be called Fortran routine
+   # Arguments
+   #    x            plpdf
+   #    y            plpdf
+   #    zx           numeric array; x-values of output plpdf z
+   #    routine      character; name of FORTRAN subroutine
+   #    normalize    logical; if TRUE: normalize z
+
+   # check
+   if (missing(routine)) {
+      stop("routine name missing")
+   }
+
+   # check classes
+   lx = is.plpdf(x)
+   ly = is.plpdf(y)
+   if (! (lx & ly)) {
+      stop("Arguments x and y must both be of class plpdf for routine ",routine)
+   }
+
+   # aray lengths
+   nx = length(x$x)
+   ny = length(y$x)
+   nz = length(zx)
+
+   # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
+   out <- .Fortran(routine,PACKAGE="plPDF",
+              xval=as.double(x$x),xden=as.double(x$y),nx=as.integer(nx),
+              yval=as.double(y$x),yden=as.double(y$y),ny=as.integer(ny),
+              zval=as.double(zx),
+              zden=as.double(rep(0.,nz)),
+              zcum=as.double(rep(0.,nz)),
+              nz  =as.integer(nz),
+              exitcode=as.integer(0))
+
+   # output
+   z = list(x=out$zval,y=out$zden,Y=out$zcum)
+   z = as.plpdf(z,normalize=normalize)
+   attr(z,"exitcode") = out$exitcode
+
+   # return
+   return(z)
+
+}
+
+
+#' Binary operations of PL-PDF objects
+#' 
+#' Perform binary operations on two PL-PDF's with \code{x}-value of \code{z} specified.
+#' @describeIn plpdfSum3
+#' Calculate the sum of two PL-PDF's for specific values of \code{z}.
+#' @param x         object of class \code{plpdf}
+#' @param y         object of class \code{plpdf}
+#' @param zx        numeric array; x-values of output plpdf z
+#' @param normalize logical; If \code{TRUE} (default) the resulting PDF is normalized. See \code{\link{as.plpdf}}.
+#' @export
+plpdfSum3 <- function(x,y,zx,normalize=TRUE) {
+   # summarize PDFs of independent variables x and y
+   # -----------------------------------------------
+   # perform     : z = x + y
+   # return value: z
+   # Arguments
+   #    x            plpdf
+   #    y            plpdf
+   #    zx           numeric array; x-values of output plpdf z
+   #    routine      character; name of FORTRAN subroutine
+   #    normalize    logical; if TRUE: normalize z
+
+   z = plpdfBop3(x=x,y=y,zx=zx,routine="rvbopsum3",normalize=normalize)
+
+   # return
+   return(z)
+}
+
+#' @describeIn plpdfSum3
+#' Subtract two PL-PDF's for specific values of \code{z}.
+#' @export
+plpdfSub3 <- function(x,y,zx,normalize=TRUE) {
+   # subtract PDFs of independent variables x and y
+   # ----------------------------------------------
+   # perform     : z = x - y
+   # return value: z
+   # Arguments
+   #    x            plpdf
+   #    y            plpdf
+   #    zx           numeric array; x-values of output plpdf z
+   #    routine      character; name of FORTRAN subroutine
+   #    normalize    logical; if TRUE: normalize z
+
+   z = plpdfBop3(x=x,y=y,zx=zx,routine="rvbopsub3",normalize=normalize)
+
+   # return
+   return(z)
+}
+
+#' @describeIn plpdfSum3
+#' Multiply two PL-PDF's for specific values of \code{z}.
+#' @export
+plpdfMul3 <- function(x,y,zx,normalize=TRUE) {
+   # Multiply PDFs of independent variables x and y
+   # ----------------------------------------------
+   # perform     : z = x * y
+   # return value: z
+   # Arguments
+   #    x            plpdf
+   #    y            plpdf
+   #    zx           numeric array; x-values of output plpdf z
+   #    routine      character; name of FORTRAN subroutine
+   #    normalize    logical; if TRUE: normalize z
+
+   z = plpdfBop3(x=x,y=y,zx=zx,routine="rvbopmul3",normalize=normalize)
+
+   # return
+   return(z)
+}
+
+#' @describeIn plpdfSum3
+#' Divide two PL-PDF's for specific values of \code{z}.
+#' @export
+plpdfDiv3 <- function(x,y,zx,normalize=TRUE) {
+   # Divide PDFs of independent variables x and y
+   # ----------------------------------------------
+   # perform     : z = x / y
+   # return value: z
+   # Arguments
+   #    x            plpdf
+   #    y            plpdf
+   #    zx           numeric array; x-values of output plpdf z
+   #    routine      character; name of FORTRAN subroutine
+   #    normalize    logical; if TRUE: normalize z
+
+   z = plpdfBop3(x=x,y=y,zx=zx,routine="rvbopdiv3",normalize=normalize)
+
+   # return
+   return(z)
+}
+
+
 ###xxx###
 ###xxx#### -------------------------------
 ###xxx###
@@ -595,46 +694,6 @@ plpdfPow2 <- function(x,y,nbin=NA,normalize=TRUE) {
 ###xxx###
 ###xxx#### -------------------------------
 ###xxx###
-###xxx###rvBopSub3 <- function(x,y,nclass=NA,z=NA,mxden=FALSE)
-###xxx###  {# subtract PDFs of independent variables x and y
-###xxx###   # ----------------------------------------------
-###xxx###   # perform     : z = x - y
-###xxx###   # return value: z
-###xxx###
-###xxx###
-###xxx###   # create Z values
-###xxx###   if (any(is.na(z))){z = spdfLinZ(x,y,type="sub",nclass=nclass,mxden=mxden)}
-###xxx###
-###xxx###   # copy data
-###xxx###   xval = as.double(x$d.val)
-###xxx###   xden = as.double(x$d.prob)
-###xxx###   nx   = as.integer(length(xval))
-###xxx###   yval = as.double(y$d.val)
-###xxx###   yden = as.double(y$d.prob)
-###xxx###   ny   = as.integer(length(yval))
-###xxx###   zval = as.double(z)
-###xxx###   nz   = as.integer(length(zval))
-###xxx###
-###xxx###   # create data memory for output variables
-###xxx###   zden     = as.double(rep(0,nz))
-###xxx###   zcum     = zden
-###xxx###   exitcode = as.integer(9999)
-###xxx###
-###xxx###   # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
-###xxx###   out <- .Fortran("rvbopsub3",xval,xden,nx,
-###xxx###                               yval,yden,ny,
-###xxx###                               zval,zden=zden,zcum=zcum,nz,exitcode=exitcode,PACKAGE="plPDF")
-###xxx###
-###xxx###   # copy returned values
-###xxx###   pdfz        = list()
-###xxx###   pdfz$d.val  = zval
-###xxx###   pdfz$d.prob = out$zden
-###xxx###   pdfz$c.prob = out$zcum
-###xxx###   exitcode    = out$exitcode
-###xxx###
-###xxx###   # return
-###xxx###   return(pdfz)
-###xxx###  }
 ###xxx###
 ###xxx#### -------------------------------
 ###xxx###
@@ -673,50 +732,6 @@ plpdfPow2 <- function(x,y,nbin=NA,normalize=TRUE) {
 ###xxx###  }
 ###xxx###
 ###xxx#### -------------------------------
-###xxx###
-###xxx###rvBopMul3 <- function(x,y,nclass=NA,z=NA,mxden=FALSE)
-###xxx###  {# Multiply PDFs of independent variables x and y
-###xxx###   # ----------------------------------------------
-###xxx###   # perform     : z = x * y
-###xxx###   # return value: z
-###xxx###
-###xxx###
-###xxx###   # create Z values
-###xxx###   if (any(is.na(z))){z = spdfLinZ(x,y,type="mul",nclass=nclass,mxden=mxden)}
-###xxx###
-###xxx###   # copy data
-###xxx###   xval = as.double(x$d.val)
-###xxx###   xden = as.double(x$d.prob)
-###xxx###   nx   = as.integer(length(xval))
-###xxx###   yval = as.double(y$d.val)
-###xxx###   yden = as.double(y$d.prob)
-###xxx###   ny   = as.integer(length(yval))
-###xxx###   zval = as.double(z)
-###xxx###   nz   = as.integer(length(zval))
-###xxx###
-###xxx###   # create data memory for output variables
-###xxx###   zden     = as.double(rep(0,nz))
-###xxx###   zcum     = zden
-###xxx###   exitcode = as.integer(9999)
-###xxx###
-###xxx###   # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
-###xxx###   out <- .Fortran("rvbopmul3",xval,xden,nx,
-###xxx###                               yval,yden,ny,
-###xxx###                               zval,zden=zden,zcum=zcum,nz,exitcode=exitcode,PACKAGE="plPDF")
-###xxx###
-###xxx###   # copy returned values
-###xxx###   pdfz        = list()
-###xxx###   pdfz$d.val  = zval
-###xxx###   pdfz$d.prob = out$zden
-###xxx###   pdfz$c.prob = out$zcum
-###xxx###   exitcode    = out$exitcode
-###xxx###
-###xxx###
-###xxx###   if(exitcode != 0){print(paste("Exitcode:",exitcode))}
-###xxx###
-###xxx###   # return
-###xxx###   return(pdfz)
-###xxx###  }
 ###xxx###
 ###xxx#### -------------------------------
 ###xxx###
@@ -820,49 +835,6 @@ plpdfPow2 <- function(x,y,nbin=NA,normalize=TRUE) {
 ###xxx###  }
 ###xxx###
 ###xxx#### -------------------------------
-###xxx###
-###xxx###rvBopDiv3 <- function(x,y,nclass=NA,z=NA,mxden=FALSE) {
-###xxx###   # Divide PDFs of independent variables x and y
-###xxx###   # ----------------------------------------------
-###xxx###   # perform     : z = x / y
-###xxx###   # return value: z
-###xxx###
-###xxx###
-###xxx###   # create Z values
-###xxx###   if (any(is.na(z))){z = spdfLinZ(x,y,type="div",nclass=nclass,mxden=mxden)}
-###xxx###
-###xxx###   # copy data
-###xxx###   xval = as.double(x$d.val)
-###xxx###   xden = as.double(x$d.prob)
-###xxx###   nx   = as.integer(length(xval))
-###xxx###   yval = as.double(y$d.val)
-###xxx###   yden = as.double(y$d.prob)
-###xxx###   ny   = as.integer(length(yval))
-###xxx###   zval = as.double(z)
-###xxx###   nz   = as.integer(length(zval))
-###xxx###
-###xxx###   # create data memory for output variables
-###xxx###   zden     = as.double(rep(0,nz))
-###xxx###   zcum     = zden
-###xxx###   exitcode = as.integer(9999)
-###xxx###
-###xxx###   # arguments: xval,xden,nx,yval,yden,ny,zval,zden,zcum,nz,exitcode
-###xxx###   out <- .Fortran("rvbopdiv3",xval,xden,nx,
-###xxx###                               yval,yden,ny,
-###xxx###                               zval,zden=zden,zcum=zcum,nz,exitcode=exitcode,PACKAGE="plPDF")
-###xxx###
-###xxx###   # copy returned values
-###xxx###   pdfz        = list()
-###xxx###   pdfz$d.val  = zval
-###xxx###   pdfz$d.prob = out$zden
-###xxx###   pdfz$c.prob = out$zcum
-###xxx###   exitcode    = out$exitcode
-###xxx###
-###xxx###   if(exitcode != 0){print(paste("Exitcode:",exitcode))}
-###xxx###
-###xxx###   # return
-###xxx###   return(pdfz)
-###xxx###}
 ###xxx###
 ###xxx#### -------------------------------
 ###xxx###

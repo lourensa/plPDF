@@ -193,25 +193,27 @@ mean.plpdf <- function(pdf) {
 }
 
 
-#' Get the length of a PL-PDF
-#'
-#' Get the length of the arrays in a PL-PDF. 
-#' @param pdf    object of class \code{plpdf}
-#' @return The number of discretization points of the PL-PDF, which is equal to \code{nbin}+1. 
-#'         If the object \code{pdf} is not of class \code{plpdf} then \code{NULL} is returned.
-#' @export
-length.plpdf <- function(pdf) {
-
-   # init
-   out = NULL
-
-   # get length
-   if (is.plpdf(pdf)) {
-      out = length(pdf$x)
-   }
-
-   # return
-   return(out)
-}
+# This function length has an unwanted side effect: e.g. str() does not work anymore on class plpdf objects.
+# So it must be removed.
+##' Get the length of a PL-PDF
+##'
+##' Get the length of the arrays in a PL-PDF. 
+##' @param pdf    object of class \code{plpdf}
+##' @return The number of discretization points of the PL-PDF, which is equal to \code{nbin}+1. 
+##'         If the object \code{pdf} is not of class \code{plpdf} then \code{NULL} is returned.
+##' @export
+#length.plpdf <- function(pdf) {
+#
+#   # init
+#   out = NULL
+#
+#   # get length
+#   if (is.plpdf(pdf)) {
+#      out = length(pdf$x)
+#   }
+#
+#   # return
+#   return(out)
+#}
 
 
