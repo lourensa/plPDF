@@ -28,7 +28,7 @@
 #' @return  The function invisibly returns the number of bins set.
 #' @seealso Use \code{\link{plpdfGetNbin}} to retrieve the option value, and \code{\link{plpdfUnsetNbin}} to remove it.
 #' @export
-plpdfSetNbin <- function(nbin=51L) {
+plpdfSetNbin <- function(nbin=50L) {
 
    # init
    optname = "plpdfNbin"

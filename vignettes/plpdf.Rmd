@@ -1,0 +1,114 @@
+---
+title: "Introduction plpdf package"
+author: "Aris Lourens"
+output:
+   rmarkdown::html_vignette:
+      toc: true
+      number_sections: false
+vignette: >
+  %\VignetteIndexEntry{Introduction plpdf package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introdcuction
+
+This package makes calculations with random variables feasible. 
+Random variables can be characterized by a probability distribution. 
+In this package, continues random variables are approximated 
+by piecewise-linear probability density functions (`PL-PDFs`).
+
+Applications and details about the development of this package are found [here][thesis].
+
+## Predefined distributions
+
+Functions are available to define PL-PDFs of standard distributions:
+uniform distribution `plUnif`,
+trapezoid shaped distributions `plTrap`,
+normal or Gaussian distribution `plNorm`, and
+the log-normal distributions `plLnorm`.
+
+
+
+## Options
+
+The `PL-PDFs` are discretized in a number of bins with a default value of 50.
+Usually, this gives a reasonable accurate result.
+If more accuracy is needed this number can be increased using [plpdfSetNbin](../help/plpdfSetNbin).
+If faster calculations are needed this number can be decreased.
+
+
+## Class plpdf
+
+The probability density functions are defined as objects of class `plpdf`.
+It is defined as a list containing an `x`-array, which are the domain values 
+of the function, 
+and a `y`-array, which defines the probability densities.
+An optional array `Y` may be available containing the cumulative probability.
+
+## S3 methods for generic functions
+
+### plot
+
+The [plot()] method is available for `plpdf` objects.
+Options useful for PDFs are available, 
+like limiting the domain (x-axis) for heavy tailed PDFs 
+or drawing the cumulative distribution.
+
+
+### Group generic functions
+
+For some of the [Group Generic functions](../../base/help/groupGeneric) methods 
+are defined for class `plpdf` objects.
+Not all functions as defined in R make sense when applied to probability density functions.
+For now, the Complex group is omitted as a whole.
+
+#### Math
+
+Methods for the functions `log`, `exp` and `sqrt` are available.
+
+
+#### Ops
+
+This group defines binary operations. 
+Methods are supplied for the operators `+, -, *, /, ^`.
+
+
+#### Summary
+
+The implemented generic functions are `sum`, `min`, `max`, `range`.
+
+`sum` returns the integral (probaility) of the PL-PDF function. If multiple pdf's are 
+given then the total sum is returned. 
+Usually, this should be 1 for a single PL-PDF but this can diverge from 1 caused by 
+roundoff errors.
+
+`min`, `max` and `range` return the respective values of the domain (`x`-value) of the pdf's.
+
+
+### Other functions
+
+The function `mean` returns the mean of the PL-PDF.
+
+Unfortunately, the function [var](../../stats/help/var) is not a generic function within R. 
+Therefore, the function [plVar](../help/plVar) is added. 
+
+
+The function `is.na` checks the density array of a `plpdf` object for `NA`-values. 
+In a valid `plpdf` object this should never be the case.
+
+The function [as.plpdf](../help/as.plpdf) transforms a list with `x` and `y` arrays into a PL-PDF.
+
+```{r setup}
+library(plPDF)
+```
+
+[thesis]: https://doi.org/10.33540/698
+

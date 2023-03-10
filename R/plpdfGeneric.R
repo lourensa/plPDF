@@ -65,13 +65,21 @@ Ops.plpdf <- function(pdf1,pdf2) {
 #'
 #' Plot method for PL-PDF objects
 #' @param pdf    object of class \code{plpdf}
-#' @param xlab   a title for the x axis. See \code{plot}
-#' @param ylab   a title for the y axis. See \code{plot}
-#' @param type   what type of plot should be drawn, See \code{plot}.
+#' @param xlab   a title for the x axis. See \code{\link[base]{plot}}
+#' @param ylab   a title for the y axis. See \code{\link[base]{plot}}
+#' @param add    logical; If `TRUE`, add the graph to the current plot, if `FALSE`, start a new plot.
+#' @param type   what type of plot should be drawn, See \code{\link[base]{plot}}.
 #' @param derivative integer; the order derivative which should be plotted. Implemented: 0=PDF (default), -1=CDF.
+#' @param prob   numeric; probability interval to limit the extent x-axis. See details.
 #' @param ...    arguments to be passed to graphical functions
+#' @details `prob` defines a probability interval. The accompanying quantiles of `pdf` are used to limit the exent of the x-axis. 
+#'    The interval may be defined by one or two values. If more than two values are given then all but the first two are ignored.
+#'    If one value is given this is the symmetric probability interval `[0.5-prob/2,0.5+prob/2]`. 
+#'    If two values are given they are the lower and upper probability value.
+#'    `NA` values are allowed in which case the respective extent of `pdf` is used.
+#'    If `NULL` it is not used. This argument is only used if `add=FALSE`.
 #' @export
-plot.plpdf <- function(pdf,xlab="Value",ylab=NA,add=FALSE,type="l",derivative=0,...) {
+plot.plpdf <- function(pdf,xlab="Value",ylab=NA,add=FALSE,type="l",derivative=0,prob=NULL,...) {
 
    # init
    ylab_pdf = "Probability density"
@@ -93,9 +101,25 @@ plot.plpdf <- function(pdf,xlab="Value",ylab=NA,add=FALSE,type="l",derivative=0,
       stop("Unknown derivative value ",derivative)
    }
 
+   # initialize graph
    if (! add) {
-      # initialize graph
-      plot(x=range(pdf$x),y=yrange,xlab=xlab,ylab=ylab,type="n",...)
+      # xrange
+      xrange = range(pdf$x)
+      if (! is.null(prob)) {
+         if (! all(is.na(prob))) {
+            if (length(prob) == 1) {
+               tprob = c(0.5-prob/2,0.5+prob/2)
+            } else {
+               tprob = prob[1:2]
+            }
+            sel = is.na(tprob)
+            tprob[sel] = c(0,1)[sel]
+            txrange = qplpdf(tprob,pdf)
+            xrange[! sel] = txrange[! sel]
+         }
+      }
+      # init graph
+      plot(x=xrange,y=yrange,xlab=xlab,ylab=ylab,type="n",...)
    }
 
    # draw line
@@ -133,9 +157,12 @@ Math.plpdf <- function(pdf,...) {
 #'
 #' Summary method for PL-PDF objects.
 #' @param pdf    object of class \code{plpdf}
-#' @details The implemented generic functions are \code{sum}, \code{min}, \code{max}, \code{range}.\cr
-#' \code{sum} returns the integral of the PL-PDF function. If multiple pdf's are given then the total sum is returned.\cr
+#' @details The implemented generic functions are \code{sum}, \code{min}, \code{max}, \code{range}.
+#'
+#' \code{sum} returns the integral of the PL-PDF function. If multiple pdf's are given then the total sum is returned.
+#'
 #' \code{min}, \code{max} and \code{range} return the respective values of the domain (\code{x}-value) of the pdf's.
+#' If multiple PL-PDFs are given then the minimum or maximum af all domain values is given.
 #' @export
 Summary.plpdf <- function(...,na.rm=FALSE) {
 
