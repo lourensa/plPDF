@@ -122,3 +122,41 @@ plLnorm <- function(meanlog=0,sdlog=1) {
 }
 
 
+#' Create a Piecewise Linear Beta Distribution
+#'
+#' Create a Piecewise Linear Beta Distribution
+#' @param a   shape parameter alpha
+#' @param b   shape parameter beta
+#' @details For parameter \eqn{a < 1} or \eqn{b < 1} the first and last density is infinite, respectively.
+#' These outermost density values are approximated by the density for \eqn{x=eps} for \eqn{a < 1}, and
+#' for \eqn{x=1-eps} for \eqn{b < 1}. Herein is \eqn{eps} 0.1 times the average bin width.
+#' @export
+plBeta <- function(a=2,b=2) {
+
+   # init
+   nbin   = plpdfGetNbin(default=50)
+   n      = nbin + 1   # number of discretization points
+   nsigma = 5
+
+   # set x
+   B = beta(a,b)   # normalization constant
+   x = seq(0,1,length.out=n)
+
+   # correction for a < 1 and b < 1
+   xt = x
+#   dx = mean(diff(x)) / 10
+   eps = 1.0 / (10.*nbin)
+   if (a < 1) {xt[1] = eps}
+   if (b < 1) {xt[n] = 1 - eps}
+
+   # calc y
+   y = (xt^(a-1))*((1-xt)^(b-1))
+
+   # assign class
+   pdf = as.plpdf(list(x=x,y=y))
+
+   # return
+   return(pdf)
+}
+
+
